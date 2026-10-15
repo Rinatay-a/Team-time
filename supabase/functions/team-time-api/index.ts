@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { createClient } from 'npm:@supabase/supabase-js@2.109.0';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -84,7 +84,7 @@ Deno.serve(async (request) => {
       if (!authorization) throw new Error('Требуется вход организатора');
       const client = createClient(url, anonKey, { global: { headers: { Authorization: authorization } } });
       const { data: { user } } = await client.auth.getUser();
-      if (!user) throw new Error('Сессия истекла');
+      if (!user || user.is_anonymous) throw new Error('Требуется учётная запись организатора');
       return user;
     }
     async function getMeeting(id = meetingId) {
@@ -144,14 +144,14 @@ Deno.serve(async (request) => {
       const slotsPerDay = Math.floor((end - start) / meeting.slot_duration);
       const maxSlots = meeting.dates.length * slotsPerDay;
       if (body.slots.length > maxSlots || body.slots.length > 5_500) throw new Error('Слишком много интервалов для этого опроса');
-      const uniqueKeys = [...new Set(body.slots.map((value: unknown) => clean(value, 16)))];
+      const uniqueKeys = [...new Set<string>(body.slots.map((value: unknown) => clean(value, 16)))];
       if (uniqueKeys.length !== body.slots.length) throw new Error('Ответ содержит повторяющиеся интервалы');
       const allowedDates = new Set(meeting.dates);
       const rows = uniqueKeys.map((key) => {
         const [date, time] = key.split('T');
         const value = timeMinutes(time);
         if (!validDate(date) || !allowedDates.has(date) || !Number.isFinite(value)) throw new Error(`Недопустимый интервал: ${key}`);
-        if (value < start || value >= end || (value - start) % meeting.slot_duration !== 0) throw new Error(`Интервал не соответствует сетке: ${key}`);
+        if (value < start || value + meeting.slot_duration > end || (value - start) % meeting.slot_duration !== 0) throw new Error(`Интервал не соответствует сетке: ${key}`);
         const startsAt = localToUtc(key, meeting.timezone);
         return {
           slot_key: key,
@@ -209,15 +209,15 @@ Deno.serve(async (request) => {
       const input = body.input || {};
       const pollType = input.poll_type === 'availability' ? 'availability' : 'meeting';
       const dates = Array.isArray(input.dates)
-        ? [...new Set(input.dates.map((date: unknown) => clean(date, 10)))].sort()
+        ? [...new Set<string>(input.dates.map((date: unknown) => clean(date, 10)))].sort()
         : [];
       if (!dates.length || dates.length > 56 || dates.some((date) => !validDate(date))) throw new Error('Укажите от 1 до 56 корректных дат');
       const start = timeMinutes(clean(input.start_hour, 5));
       const end = timeMinutes(clean(input.end_hour, 5));
       const step = Number(input.slot_duration);
       const duration = pollType === 'meeting' ? Number(input.meeting_duration) : null;
-      if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end || ![15, 30].includes(step)) throw new Error('Некорректная сетка времени');
-      if (pollType === 'meeting' && (!duration || duration % step !== 0 || duration > end - start)) throw new Error('Некорректная продолжительность встречи');
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end || ![15, 30].includes(step) || (end - start) % step !== 0) throw new Error('Некорректная сетка времени');
+      if (pollType === 'meeting' && (!duration || duration < 15 || duration > 720 || duration % step !== 0 || duration > end - start)) throw new Error('Некорректная продолжительность встречи');
       const row = {
         organizer_id: user.id,
         poll_type: pollType,
@@ -262,24 +262,29 @@ Deno.serve(async (request) => {
       const gridStart = timeMinutes(String(meeting.start_hour).slice(0, 5));
       const gridEnd = timeMinutes(String(meeting.end_hour).slice(0, 5));
       if (!meeting.dates.includes(startDate) || endKey.slice(0, 10) !== startDate || startValue < gridStart || endValue > gridEnd || (startValue - gridStart) % meeting.slot_duration !== 0) throw new Error('Выбранное время не входит в варианты опроса');
-      await db.from('meetings').update({ status: 'finalized', finalized_start: startsAt.toISOString(), finalized_end: endsAt.toISOString() }).eq('id', meeting.id);
+      const { error } = await db.from('meetings').update({ status: 'finalized', finalized_start: startsAt.toISOString(), finalized_end: endsAt.toISOString() }).eq('id', meeting.id);
+      if (error) throw error;
       return json({ ok: true });
     }
     if (action === 'admin_archive') {
-      await db.from('meetings').update({ status: 'archived' }).eq('id', meeting.id);
+      const { error } = await db.from('meetings').update({ status: 'archived' }).eq('id', meeting.id);
+      if (error) throw error;
       return json({ ok: true });
     }
     if (action === 'admin_delete_meeting') {
-      await db.from('meetings').delete().eq('id', meeting.id);
+      const { error } = await db.from('meetings').delete().eq('id', meeting.id);
+      if (error) throw error;
       return json({ ok: true });
     }
     if (action === 'admin_close' || action === 'admin_reopen') {
       if (meeting.status === 'archived' || meeting.status === 'finalized') throw new Error('Этот статус нельзя изменить');
-      await db.from('meetings').update({ status: action === 'admin_close' ? 'closed' : 'collecting' }).eq('id', meeting.id);
+      const { error } = await db.from('meetings').update({ status: action === 'admin_close' ? 'closed' : 'collecting' }).eq('id', meeting.id);
+      if (error) throw error;
       return json({ ok: true });
     }
     if (action === 'admin_delete_participant') {
-      await db.from('participants').delete().eq('id', clean(body.participantId, 36)).eq('meeting_id', meeting.id);
+      const { error } = await db.from('participants').delete().eq('id', clean(body.participantId, 36)).eq('meeting_id', meeting.id);
+      if (error) throw error;
       return json({ ok: true });
     }
     return json({ error: 'Неизвестная операция' }, 400);

@@ -2,6 +2,8 @@
 
 Проверено 14 октября 2026 с доступом к npm registry.
 
+Повторная проверка 15 октября 2026 после добавления тестового PostgreSQL (`@electric-sql/pglite`): `npm audit --json` и `npm audit --omit=dev --json` — **0** известных уязвимостей. Пакет используется только в dev/test и не попадает в клиентскую сборку.
+
 ## Исходное состояние 1.0
 
 `npm audit --json`: 13 проблем — 5 moderate, 6 high, 2 critical.  

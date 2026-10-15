@@ -1,0 +1,5 @@
+project_id = "team-time"
+
+[functions.team-time-api]
+# Participants do not need an account. Admin actions verify the JWT in code.
+verify_jwt = false

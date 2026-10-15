@@ -53,6 +53,7 @@ export function CreateMeeting() {
     setError('');
     if (!pollType) return setError('Сначала выберите тип опроса.');
     if (minutes(startHour) >= minutes(endHour)) return setError('Время окончания должно быть позже начала.');
+    if ((minutes(endHour) - minutes(startHour)) % slotDuration !== 0) return setError('Дневной диапазон должен быть кратен шагу сетки.');
     if (!dates.length) return setError('В выбранном периоде нет дат.');
     if (dates.length > 56) return setError('Период может содержать не более 56 выбранных дней.');
     if (pollType === 'meeting') {

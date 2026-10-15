@@ -10,6 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:pages": "node scripts/test-pages.mjs",
+    "check:backend": "node scripts/check-backend.mjs",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -22,6 +24,7 @@
     "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/vite": "^4.3.3",

@@ -3,15 +3,24 @@ import type { CreateMeetingInput, Meeting, PublicMeetingData } from '../types';
 import { demoRequested, hasSupabaseConfig } from '../lib/config';
 import { demoMeeting, demoParticipants } from '../lib/demo';
 
-const url = import.meta.env.VITE_SUPABASE_URL || 'https://configuration-required.invalid';
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY || 'configuration-required';
+const url = hasSupabaseConfig ? import.meta.env.VITE_SUPABASE_URL : 'https://configuration-required.invalid';
+const key = hasSupabaseConfig ? import.meta.env.VITE_SUPABASE_ANON_KEY : 'configuration-required';
 export const supabase = createClient(url, key);
 const functionName = import.meta.env.VITE_API_FUNCTION || 'team-time-api';
 
 async function call<T>(action: string, body: Record<string, unknown> = {}): Promise<T> {
   if (!hasSupabaseConfig) throw new Error('Подключение к Supabase не настроено.');
   const { data, error } = await supabase.functions.invoke(functionName, { body: { action, ...body } });
-  if (error) throw new Error(error.message);
+  if (error) {
+    // functions.invoke puts non-2xx JSON in error.context, not in data.
+    let failure;
+    if (error.context instanceof Response) {
+      try { failure = await error.context.json(); } catch { /* Use SDK message. */ }
+    }
+    const typed = new Error(failure?.error || error.message) as Error & { code?: string };
+    typed.code = failure?.code;
+    throw typed;
+  }
   if (data?.error) {
     const typed = new Error(data.error) as Error & { code?: string; current?: unknown };
     typed.code = data.code;

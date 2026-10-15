@@ -23,7 +23,7 @@
 
 ## Быстрый запуск
 
-Требуется Node.js 20.19+.
+Рекомендуется Node.js 22 LTS (минимум 22.12).
 
 ```powershell
 npm ci
@@ -47,6 +47,7 @@ npm test
 npm run build
 npx playwright install chromium
 npm run test:e2e
+npm run test:pages
 npm audit --json
 npm audit --omit=dev --json
 ```
@@ -61,6 +62,9 @@ npm audit --omit=dev --json
 - `src/lib/time.ts` — даты, UTC, рейтинг непрерывных блоков и ICS;
 - `supabase/migrations/002_poll_types_and_atomic_availability.sql` — совместимая миграция 2.0;
 - `supabase/functions/team-time-api` — закрытый серверный API;
+- `supabase/migrations/003_production_safety.sql` — исправление сохранения и защита транзакций;
+- `.github/workflows/deploy.yml` — проверки и публикация GitHub Pages;
+- `.github/workflows/supabase.yml` — ручное развёртывание Supabase;
 - `e2e` и `tests` — Playwright и Vitest.
 
 ## Безопасность и персональные данные
@@ -73,7 +77,9 @@ Frontend содержит только publishable/anon key. `service_role` су
 
 ## Документы
 
-- [DEPLOYMENT.md](DEPLOYMENT.md) — обновление существующей установки и Windows PowerShell;
+- [START_HERE.md](START_HERE.md) — оставшиеся действия владельца и загрузка готовой ветки;
+- [DEPLOYMENT.md](DEPLOYMENT.md) — пошаговый запуск для Rinatay-a/Team-time: Supabase, вход организатора, GitHub Pages и проверка на двух устройствах;
+- [VERIFICATION.md](VERIFICATION.md) — результаты и границы проверок перед запуском;
 - [CHANGELOG.md](CHANGELOG.md) — изменения 2.0;
 - [BUG_AUDIT.md](BUG_AUDIT.md) — найденные дефекты и риски;
 - [NPM_AUDIT.md](NPM_AUDIT.md) — разбор зависимостей.

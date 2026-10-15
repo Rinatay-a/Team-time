@@ -2,6 +2,11 @@ node_modules
 dist
 .env
 .env.local
+.env.*.local
+*.tsbuildinfo
+backup*.sql
+supabase/.temp/
+supabase/.branches/
 .DS_Store
 coverage
 *.log
