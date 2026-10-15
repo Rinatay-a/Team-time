@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+@layer components{.input{@apply mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-3;font-weight:400}.input:focus-visible{outline:3px solid rgba(22,163,74,.3);outline-offset:2px}}
+:root{font-family:Inter,Manrope,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#111827;background:#f8fafc;font-synthesis:none}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;min-height:100vh}button,input,textarea,select{font:inherit}button{touch-action:manipulation}.focus-ring:focus-visible{outline:3px solid rgba(22,163,74,.3);outline-offset:2px}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}

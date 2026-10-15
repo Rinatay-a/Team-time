@@ -1,0 +1,1 @@
+import {Link} from 'react-router-dom';import {Button} from '../components/ui/Button';export function NotFound(){return <div className="p-20 text-center"><h1 className="text-4xl font-black">Страница не найдена</h1><p className="mt-3 text-slate-500">Проверьте ссылку или вернитесь на главную.</p><Link to="/"><Button className="mt-6">На главную</Button></Link></div>}

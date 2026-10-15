@@ -1,0 +1,1 @@
+import type {HTMLAttributes} from 'react';export function Card({className='',...p}:HTMLAttributes<HTMLDivElement>){return <div className={`rounded-2xl border border-slate-200 bg-white shadow-soft ${className}`} {...p}/>}
