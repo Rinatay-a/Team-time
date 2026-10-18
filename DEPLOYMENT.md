@@ -30,6 +30,8 @@ URL и publishable/anon key публичны. **Secret key (`sb_secret_…`), `s
 
 ## 4. Развернуть базу и функцию
 
+Если `supabase db push` сообщил об IPv6 после успешного `link`, используйте **[инструкцию IPv4 Session Pooler](SUPABASE_POOLER.md)**. Workflow теперь читает историю перед изменениями и поддерживает режим `inspect-database`.
+
 Выберите вариант A для автоматизации через GitHub. Вариант B не требует хранить токен и пароль базы в GitHub.
 
 ### Вариант A: готовый GitHub Actions workflow
@@ -38,11 +40,11 @@ URL и publishable/anon key публичны. **Secret key (`sb_secret_…`), `s
 2. В https://supabase.com/dashboard/account/tokens создайте **Personal access token**. Сохраните его только в GitHub → **Secrets → New repository secret** с именем `SUPABASE_ACCESS_TOKEN`. Не отправляйте токен в чат.
 3. Там же создайте Secret `SUPABASE_DB_PASSWORD` с паролем **базы**, а не паролем входа организатора. Он нужен только для миграций.
 4. **Actions → Развёртывание Supabase → Run workflow**, ветка **main**.
-5. Для **нового пустого проекта** выберите `migrations-and-function` → **Run workflow**. Workflow применит `001`, `002`, `003` и опубликует `team-time-api`.
+5. Сначала выберите `inspect-database` → **Run workflow**: это проверит IPv4 Session Pooler и покажет историю без применения SQL. После зелёной проверки для **нового пустого проекта** выберите `migrations-and-function` → **Run workflow**. Workflow применит только ожидающие `001`, `002`, `003` и опубликует `team-time-api`.
 6. Для **существующей базы** сначала прочитайте подраздел ниже. Если SQL применён вручную, выбирайте `function-only`.
 7. Дождитесь зелёного результата. В Supabase → **Edge Functions** должна появиться `team-time-api`.
 
-Workflow запускается только вручную из `main`. Secrets не используются сборкой сайта и не попадают в JavaScript. Не давайте посторонним доступ к изменению workflows. Если дальнейшие обновления будете выполнять через CLI, после запуска можно удалить эти Secrets.
+Применение миграций и публикация функции запускаются только вручную из `main`. При изменениях workflow/helper в `main` автоматически выполняется только read-only диагностика базы. Secrets не используются сборкой сайта и не попадают в JavaScript. Не давайте посторонним доступ к изменению workflows. Если дальнейшие обновления будете выполнять через CLI, после запуска можно удалить эти Secrets.
 
 ### Если база уже содержит таблицы и ответы
 

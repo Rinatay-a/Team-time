@@ -1,6 +1,12 @@
 name: Развёртывание Supabase
 
 on:
+  # A code update only inspects the DB; applying SQL remains a manual operation.
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/supabase.yml
+      - scripts/supabase-deploy.mjs
   workflow_dispatch:
     inputs:
       operation:
@@ -8,6 +14,7 @@ on:
         type: choice
         default: function-only
         options:
+          - inspect-database
           - function-only
           - migrations-and-function
 
@@ -24,10 +31,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: supabase/setup-cli@v1
         with:
           version: 2.121.0
@@ -36,12 +45,20 @@ jobs:
         run: |
           test -n "$SUPABASE_ACCESS_TOKEN" || { echo 'Добавьте Secret SUPABASE_ACCESS_TOKEN'; exit 1; }
           test -n "$SUPABASE_PROJECT_REF" || { echo 'Добавьте Variable SUPABASE_PROJECT_REF'; exit 1; }
-      - name: Применить миграции
-        if: inputs.operation == 'migrations-and-function'
-        shell: bash
+      - name: Проверить CLI
+        run: supabase --version
+      - name: Проверить БД через IPv4 Session Pooler и применить только ожидающие миграции
+        if: github.event_name == 'push' || inputs.operation != 'function-only'
+        env:
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          DB_OPERATION: ${{ github.event_name == 'push' && 'inspect-database' || inputs.operation }}
         run: |
-          test -n "$SUPABASE_DB_PASSWORD" || { echo 'Добавьте Secret SUPABASE_DB_PASSWORD'; exit 1; }
-          supabase link --project-ref "$SUPABASE_PROJECT_REF"
-          supabase db push --yes
+          command -v psql >/dev/null || { echo 'PostgreSQL client (psql) отсутствует на runner'; exit 1; }
+          node scripts/supabase-deploy.mjs "$DB_OPERATION"
       - name: Опубликовать team-time-api
+        if: github.event_name == 'workflow_dispatch' && inputs.operation != 'inspect-database'
         run: supabase functions deploy team-time-api --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt --use-api
+      - name: Проверить публикацию team-time-api
+        if: github.event_name == 'workflow_dispatch' && inputs.operation != 'inspect-database'
+        run: node scripts/supabase-function-check.mjs

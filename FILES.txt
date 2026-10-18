@@ -11,6 +11,7 @@ NPM_AUDIT.md
 PR_DESCRIPTION.md
 README.md
 START_HERE.md
+SUPABASE_POOLER.md
 VERIFICATION.md
 e2e/pages.spec.ts
 e2e/time-grid.spec.ts
@@ -21,6 +22,8 @@ package.json
 playwright.config.ts
 playwright.pages.config.ts
 scripts/check-backend.mjs
+scripts/supabase-deploy.mjs
+scripts/supabase-function-check.mjs
 scripts/test-pages.mjs
 src/components/BestIntervals.tsx
 src/components/calendar/CalendarPager.tsx
@@ -55,6 +58,7 @@ tests/config.test.ts
 tests/database.test.ts
 tests/edge-api.test.ts
 tests/security.test.ts
+tests/supabase-deploy.test.ts
 tests/workflows.test.ts
 tsconfig.app.json
 tsconfig.json

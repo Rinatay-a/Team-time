@@ -2,6 +2,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PGlite } from '@electric-sql/pglite';
 import { readFileSync } from 'node:fs';
+// @ts-expect-error The CI metadata guard is intentionally plain JavaScript.
+import { inventorySql, migrationPlan } from '../scripts/supabase-deploy.mjs';
 
 const db = new PGlite();
 const organizer = '00000000-0000-0000-0000-000000000001';
@@ -45,6 +47,10 @@ beforeAll(async () => {
 afterAll(() => db.close());
 
 describe('реальное выполнение миграций в PostgreSQL', () => {
+  it('CI-проверка читает реальную схему и распознаёт все три миграции', async () => {
+    const result = await db.query<{ json_build_object: unknown }>(inventorySql);
+    expect(migrationPlan(result.rows[0].json_build_object, ['001', '002', '003'])).toEqual([]);
+  });
   it('создаёт оба типа опроса и сохраняет default meeting', async () => {
     expect((await db.query<{ poll_type: string }>('select poll_type from meetings where id=$1', [meeting])).rows[0].poll_type).toBe('meeting');
     await db.query(`insert into meetings (organizer_id,title,poll_type,start_hour,end_hour,slot_duration,meeting_duration)
