@@ -1,34 +1,12 @@
 # Что осталось сделать владельцу
 
-Проект подготовлен в ветке `codex/production-pages-supabase`. Дизайн и структура приложения сохранены. Публикация и подключение к облаку ещё не выполнены.
+18 октября 2026 подготовленный коммит `ff8a700` успешно отправлен в `main` репозитория `Rinatay-a/Team-time` обычным push. История сохранена; все исправления и оба workflow уже в GitHub. Дизайн и структура приложения сохранены.
 
-GitHub разрешил чтение репозитория, но отклонил создание удалённой ветки: `403 Resource not accessible by integration`. Поэтому Pull Request не создан. Ниже способ перенести готовую ветку без ручного копирования файлов.
+## 1. Код уже загружен
 
-## 1. Загрузить подготовленную ветку
+Установка GitHub Desktop, ручная загрузка файлов, перенос bundle и создание Pull Request больше не требуются. Первоначальная ошибка 403 была вызвана тем, что `Team-time` отсутствовал в списке репозиториев установленного подключения. После добавления доступа отправка прошла успешно.
 
-1. Скачайте из ответа файл **Team-time-production.bundle**. Это Git-пакет с исходниками и готовым коммитом, без `node_modules`, сборки и секретов.
-2. Установите **Git for Windows** и **GitHub Desktop**. В GitHub Desktop войдите в аккаунт `Rinatay-a` через браузер.
-3. В папке, куда скачан bundle, откройте PowerShell и выполните:
-
-```powershell
-git clone --branch codex/production-pages-supabase .\Team-time-production.bundle Team-time-launch
-Set-Location Team-time-launch
-git remote set-url origin https://github.com/Rinatay-a/Team-time.git
-```
-
-4. GitHub Desktop → **File → Add local repository** → выберите папку `Team-time-launch`. Проверьте, что Current branch — `codex/production-pages-supabase`.
-5. Нажмите **Publish branch** (или **Push origin**). Если Desktop сначала предлагает **Fetch origin**, нажмите её, затем **Publish branch**. Если интерфейс предлагает **Publish repository**, отмените: новый репозиторий создавать не нужно; проверьте URL origin из команды выше.
-6. Нажмите **Create Pull Request**. В браузере выберите base **main**, compare **codex/production-pages-supabase** и создайте PR. Готовый текст описания находится в `PR_DESCRIPTION.md`.
-7. Дождитесь зелёной проверки и нажмите **Merge pull request → Confirm merge**.
-
-Если Git уже настроен для вашего GitHub, вместо шагов Desktop можно выполнить:
-
-```powershell
-git push -u origin codex/production-pages-supabase
-```
-
-И открыть https://github.com/Rinatay-a/Team-time/compare/main...codex/production-pages-supabase.
-Пароли и токены не отправляйте в чат: вход выполняйте через GitHub Desktop/браузер.
+Проверьте запуск **[Публикация сайта](https://github.com/Rinatay-a/Team-time/actions/workflows/deploy.yml)**. Если публичные настройки Supabase ещё не заполнены, Production-сборка остановится с пояснением — выполните следующие шаги и запустите workflow заново.
 
 ## 2. Подключить сервисы
 
@@ -42,4 +20,4 @@ git push -u origin codex/production-pages-supabase
 
 Будущий адрес: **https://rinatay-a.github.io/Team-time/**.
 
-Вариант для просмотра исходников без Git: архив **Team-time-production-source.zip**. Для переноса готового коммита используйте bundle.
+Секреты вводите только в Supabase и GitHub Secrets, не передавайте их в чат.
