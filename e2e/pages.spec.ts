@@ -39,7 +39,19 @@ test('production: /Team-time/, прямой вход, сохранение, по
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: 'Узнайте, когда свободна вся команда' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Время команды', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Создать опрос', exact: true })).toHaveAttribute('href', '#/admin/new');
+    await expect(page.getByText('Пример календаря. Не данные участников.')).toBeVisible();
+    const loadedFonts = await page.evaluate(async () => {
+      const body = await document.fonts.load('400 16px Montserrat', 'Время команды 0123');
+      const heading = await document.fonts.load('500 32px Unbounded', 'Время команды');
+      return { body: body.length, heading: heading.length };
+    });
+    expect(loadedFonts.body).toBeGreaterThan(0);
+    expect(loadedFonts.heading).toBeGreaterThan(0);
+    const fontPaths = await page.locator('link[as="font"]').evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+    expect(fontPaths).toHaveLength(2);
+    expect(fontPaths.every((path) => path?.startsWith('/Team-time/fonts/'))).toBe(true);
     await expect(page.getByRole('button', { name: 'Открыть демо' })).toHaveCount(0);
     const assets = await page.locator('script[src]').evaluateAll((scripts) => scripts.map((node) => node.getAttribute('src')));
     expect(assets.every((src) => src?.startsWith('/Team-time/assets/'))).toBe(true);
@@ -113,6 +125,9 @@ test('production: вход организатора и создание двух
     await page.getByRole('button', { name: 'Создать опрос', exact: true }).click();
     await expect(page.getByRole('heading', { name: `Проверка ${type}` })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Участники', exact: true })).toBeVisible();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    await page.setViewportSize({ width: 1280, height: 720 });
   }
   expect(created).toHaveLength(2);
   expect(created[0]).toMatchObject({ poll_type: 'availability', meeting_duration: null });

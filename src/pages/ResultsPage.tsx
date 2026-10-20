@@ -124,7 +124,7 @@ export function ResultsPage() {
 
       {(notice || error) && <div role="status" className={`mt-4 rounded-xl p-3 ${error ? 'bg-red-50 text-red-700' : 'bg-brand-50 text-brand-700'}`}>{error || notice}</div>}
 
-      <div className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="mt-7 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="space-y-6">
           <Card className="p-5"><div className="flex items-center gap-2"><Users className="text-brand-600" /><h2 className="text-xl font-bold">Тепловая карта</h2></div><p className="mt-1 text-sm text-slate-500">Число в ячейке — сколько ответивших свободны. Нажмите на ячейку для состава.</p></Card>
           <CalendarPager meeting={meeting} participants={participants} results onSlotInspect={setInspectedSlot} />
