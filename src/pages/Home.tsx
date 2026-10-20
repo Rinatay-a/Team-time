@@ -1,2 +1,116 @@
-import {ArrowRight,CalendarDays,CheckCircle2,Link2,Users} from 'lucide-react';import {Link} from 'react-router-dom';import {Button} from '../components/ui/Button';import {Card} from '../components/ui/Card';import {appConfig,demoRequested} from '../lib/config';
-export function Home(){const steps=[[CalendarDays,'Создайте встречу'],[Link2,'Отправьте ссылку'],[Users,'Соберите ответы'],[CheckCircle2,'Выберите время']] as const;return <><section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 md:grid-cols-2 md:py-24"><div><div className="mb-4 inline-flex rounded-full bg-brand-100 px-3 py-1 text-sm font-semibold text-brand-700">{appConfig.tagline}</div><h1 className="text-4xl font-black leading-tight tracking-tight text-slate-950 md:text-6xl">Узнайте, когда свободна вся команда</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Собирайте доступность на несколько недель или подбирайте время одной встречи — без регистрации участников.</p><div className="mt-8 flex flex-wrap gap-3"><Link to="/admin/new"><Button>Создать встречу <ArrowRight size={18}/></Button></Link>{demoRequested&&<Link to="/meet/demo"><Button variant="secondary">Открыть демо</Button></Link>}</div></div><Card className="overflow-hidden p-5"><div className="mb-4 flex items-center justify-between"><div><div className="font-bold">Заседание команды</div><div className="text-sm text-slate-500">21 октября · 17:00</div></div><span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-700">14 из 16</span></div><div className="grid grid-cols-4 gap-2">{Array.from({length:28},(_,i)=><div key={i} className="h-10 rounded-lg" style={{backgroundColor:`rgba(22,163,74,${[.08,.2,.35,.55,.75][(i*7)%5]})`}}/>)}</div></Card></section><section className="border-y border-slate-200 bg-white"><div className="mx-auto max-w-7xl px-4 py-14"><h2 className="text-center text-2xl font-bold">Как это работает?</h2><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{steps.map(([Icon,text],i)=><div className="flex items-center gap-4 rounded-2xl bg-slate-50 p-5" key={text}><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-100 text-brand-700"><Icon size={20}/></span><div><div className="text-xs font-bold text-slate-400">ШАГ {i+1}</div><div className="font-semibold">{text}</div></div></div>)}</div></div></section></>}
+import { ArrowRight, CalendarCheck2, CalendarRange, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { appConfig, demoRequested } from '../lib/config';
+
+const steps = [
+  ['Создайте опрос', 'Выберите сбор свободного времени или планирование встречи.'],
+  ['Поделитесь ссылкой', 'Отправьте её участникам в общий чат команды.'],
+  ['Участники отметят время', 'Каждый выберет удобные интервалы — без регистрации.'],
+  ['Найдите пересечения', 'Посмотрите результаты и выберите время для общих дел.'],
+] as const;
+
+export function Home() {
+  return (
+    <div className="home-page">
+      <section className="home-shell home-hero" aria-labelledby="home-title">
+        <div className="home-intro">
+          <p className="home-eyebrow">Молодёжная палата<br />Чертаново Центральное</p>
+          <h1 id="home-title" className="home-title">{appConfig.name}</h1>
+          <p className="home-tagline">Находим время,<br /><span>удобное для всех</span></p>
+          <p className="home-description">
+            Собираем свободное время участников, находим пересечения в расписаниях
+            и выбираем удобные даты для встреч, заседаний и совместных мероприятий.
+          </p>
+          <div className="home-actions">
+            <Link to="/admin/new" className="home-primary-action focus-ring">
+              Создать опрос <ArrowRight size={18} aria-hidden="true" />
+            </Link>
+            {demoRequested && <Link to="/meet/demo" className="home-demo-link focus-ring">Открыть демо</Link>}
+          </div>
+          <p className="home-action-note">Участникам не нужна регистрация — только ссылка.</p>
+        </div>
+        <AvailabilityPreview />
+      </section>
+
+      <section className="home-shell home-about" aria-labelledby="about-title">
+        <div>
+          <p className="home-eyebrow">Для наших общих дел</p>
+          <h2 id="about-title" className="home-section-title">Меньше согласований —<br />больше совместных дел</h2>
+        </div>
+        <p>
+          Заседания, рабочие встречи и мероприятия проще планировать, когда расписания
+          собраны в одном месте. Вместо длинных обсуждений в чате каждый отмечает своё
+          время, а организатор видит, когда команда может собраться.
+        </p>
+      </section>
+
+      <section className="home-shell home-scenarios" aria-labelledby="scenarios-title">
+        <p className="home-eyebrow">От расписания к планам</p>
+        <h2 id="scenarios-title" className="home-section-title">Два сценария для одной команды</h2>
+        <div className="home-scenario-grid">
+          <article className="home-scenario">
+            <div className="home-scenario-top"><CalendarRange size={23} strokeWidth={1.7} aria-hidden="true" /><span>На дни и недели вперёд</span></div>
+            <h3>Свободное время команды</h3>
+            <p>Участники отмечают, когда они свободны в ближайшие дни или недели. Организатор получает общую картину для будущих мероприятий — без привязки к одной встрече.</p>
+          </article>
+          <article className="home-scenario">
+            <div className="home-scenario-top"><CalendarCheck2 size={23} strokeWidth={1.7} aria-hidden="true" /><span>Для конкретного события</span></div>
+            <h3>Планирование встречи</h3>
+            <p>Организатор предлагает несколько дат и длительность встречи. Участники отмечают доступность, а сервис помогает найти подходящие непрерывные интервалы.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="home-shell home-how" aria-labelledby="how-title">
+        <p className="home-eyebrow">От первого опроса до встречи</p>
+        <h2 id="how-title" className="home-section-title">Как это работает</h2>
+        <ol className="home-steps">
+          {steps.map(([title, description], index) => (
+            <li key={title}>
+              <span className="home-step-number" aria-hidden="true">0{index + 1}</span>
+              <div><h3>{title}</h3><p>{description}</p></div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </div>
+  );
+}
+
+// A static illustration, independent of API data and the working calendar.
+function AvailabilityPreview() {
+  const days = ['Пн', 'Вт', 'Ср', 'Чт'];
+  const rows = [
+    { time: '16:00', levels: [1, 2, 0, 1] },
+    { time: '16:30', levels: [2, 3, 1, 0] },
+    { time: '17:00', levels: [1, 4, 2, 1] },
+    { time: '17:30', levels: [0, 4, 3, 2] },
+    { time: '18:00', levels: [1, 2, 1, 3] },
+  ];
+  const labels = ['Нет совпадений', 'Мало совпадений', 'Несколько совпадений', 'Много совпадений', 'Больше всего совпадений'];
+  return (
+    <figure className="availability-preview" aria-labelledby="preview-title">
+      <div className="preview-heading">
+        <span className="preview-kicker">Календарь доступности</span>
+        <span className="preview-example">Пример</span>
+      </div>
+      <h2 id="preview-title">Общее свободное время</h2>
+      <p className="preview-subtitle">Расписания разные. Пересечения — здесь.</p>
+      <table className="preview-calendar">
+        <caption className="sr-only">Демонстрация доступности, не реальные ответы участников</caption>
+        <thead><tr><th scope="col">Время</th>{days.map((day) => <th scope="col" key={day}>{day}</th>)}</tr></thead>
+        <tbody>{rows.map(({ time, levels }) => <tr key={time}>
+          <th scope="row">{time}</th>
+          {levels.map((level, index) => <td key={days[index]}>
+            <span className={`preview-cell preview-level-${level}`}>
+              <span className="sr-only">{labels[level]}</span>
+              {level === 4 && <Check size={16} strokeWidth={2} aria-hidden="true" />}
+            </span>
+          </td>)}
+        </tr>)}</tbody>
+      </table>
+      <div className="preview-legend"><span>Меньше</span><span className="preview-scale" aria-hidden="true">{[0, 1, 2, 3, 4].map((level) => <i className={`preview-level-${level}`} key={level} />)}</span><span>Больше совпадений</span></div>
+      <figcaption>Пример календаря. Не данные участников.</figcaption>
+    </figure>
+  );
+}
