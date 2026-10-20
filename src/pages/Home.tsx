@@ -14,7 +14,7 @@ export function Home() {
     <div className="home-page">
       <section className="home-shell home-hero" aria-labelledby="home-title">
         <div className="home-intro">
-          <p className="home-eyebrow">Молодёжная палата<br />Чертанова Центрального</p>
+          <p className="home-eyebrow">Молодёжная палата<br />Чертаново Центральное</p>
           <h1 id="home-title" className="home-title">{appConfig.name}</h1>
           <p className="home-tagline">Находим время,<br /><span>удобное для всех</span></p>
           <p className="home-description">

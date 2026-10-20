@@ -3,7 +3,7 @@ import { publicConfigError } from './config-validation';
 export const appConfig = {
   name: 'Время команды',
   tagline: 'Находим время, удобное для всех',
-  subtitle: 'Сервис планирования Молодёжной палаты Чертанова Центрального',
+  subtitle: 'Сервис планирования Молодёжной палаты Чертаново Центральное',
 };
 
 export const demoRequested = import.meta.env.VITE_DEMO_MODE === 'true';
